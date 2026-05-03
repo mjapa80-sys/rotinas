@@ -29,7 +29,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthRoute = request.nextUrl.pathname.startsWith("/login");
+  const isAuthRoute = request.nextUrl.pathname.startsWith("/login") || request.nextUrl.pathname.startsWith("/auth");
   const isApiRoute = request.nextUrl.pathname.startsWith("/api");
   const isPublicAsset = request.nextUrl.pathname.startsWith("/_next");
 
