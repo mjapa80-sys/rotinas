@@ -1,29 +1,36 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Suspense } from "react";
 
-export default function AuthCallback() {
+function CallbackInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const supabase = createClient();
+    const code = searchParams.get("code");
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        router.replace("/dashboard");
-        return;
-      }
-
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
-          subscription.unsubscribe();
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+        if (!error) {
           router.replace("/dashboard");
+        } else {
+          router.replace("/login?error=auth_failed");
         }
       });
-    });
-  }, [router]);
+    } else {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          router.replace("/dashboard");
+        } else {
+          router.replace("/login");
+        }
+      });
+    }
+  }, [router, searchParams]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-600 to-primary-900 flex items-center justify-center">
@@ -32,5 +39,13 @@ export default function AuthCallback() {
         <p className="text-gray-500 text-sm">ログイン中...</p>
       </div>
     </div>
+  );
+}
+
+export default function AuthCallback() {
+  return (
+    <Suspense>
+      <CallbackInner />
+    </Suspense>
   );
 }
