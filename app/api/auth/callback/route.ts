@@ -9,7 +9,6 @@ export async function GET(request: Request) {
 
   if (code) {
     const cookieStore = await cookies();
-    const redirectResponse = NextResponse.redirect(`${origin}${next}`);
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
@@ -20,13 +19,13 @@ export async function GET(request: Request) {
             return cookieStore.getAll();
           },
           setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              redirectResponse.cookies.set(
-                name,
-                value,
-                options as Parameters<typeof redirectResponse.cookies.set>[2]
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options as Parameters<typeof cookieStore.set>[2])
               );
-            });
+            } catch {
+              // ignore in Server Components
+            }
           },
         },
       }
@@ -34,7 +33,12 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return redirectResponse;
+      // Vercelでは x-forwarded-host が実際のドメイン
+      const forwardedHost = request.headers.get("x-forwarded-host");
+      if (forwardedHost) {
+        return NextResponse.redirect(`https://${forwardedHost}${next}`);
+      }
+      return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
