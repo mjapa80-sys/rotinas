@@ -17,14 +17,14 @@ export async function POST(request: Request) {
       messages: [
         {
           role: "user",
-          content: `Analise este texto e retorne APENAS JSON válido com categoria e data (se mencionada).
+          content: `このテキストを分析し、カテゴリと日付（記載がある場合）を含む有効なJSONのみを返してください。
 
-Texto: "${content}"
+テキスト: "${content}"
 
-Categorias possíveis: tarefa, prova, evento, lembrete, outro
+利用可能なカテゴリ: tarefa（タスク）, prova（テスト・課題）, evento（イベント）, lembrete（リマインダー）, outro（その他）
 
-Responda APENAS com JSON:
-{"category": "<categoria>", "date": "<YYYY-MM-DD ou null>"}`,
+JSONのみで回答してください:
+{"category": "<カテゴリ>", "date": "<YYYY-MM-DD またはnull>"}`,
         },
       ],
     });

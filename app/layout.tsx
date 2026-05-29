@@ -5,13 +5,13 @@ import "./globals.css";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
 export const metadata: Metadata = {
-  title: "Rotinas",
-  description: "Organize sua vida, acompanhe suas metas",
+  title: "ルーティン",
+  description: "スケジュール・日記・プランをひとつの場所で管理",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Rotinas",
+    title: "ルーティン",
   },
 };
 
@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="ja">
       <body className={`${geist.variable} font-sans antialiased`}>
         {children}
       </body>

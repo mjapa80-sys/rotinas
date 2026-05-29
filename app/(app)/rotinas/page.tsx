@@ -26,9 +26,9 @@ type Tab = "rotinas" | "todo";
 type TimeOfDay = "manha" | "tarde" | "noite";
 
 const timeLabels: Record<TimeOfDay, string> = {
-  manha: "朝",
-  tarde: "昼",
-  noite: "夜",
+  manha: "☀️ 朝",
+  tarde: "🌤 昼",
+  noite: "🌙 夜",
 };
 
 const timeIcons: Record<TimeOfDay, React.ElementType> = {

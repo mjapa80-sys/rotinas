@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format, subDays, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { ja } from "date-fns/locale";
 import {
   ChevronLeft,
   ChevronRight,
@@ -52,7 +52,7 @@ export default function DiarioPage() {
   const [loadingEntry, setLoadingEntry] = useState(false);
 
   const dateStr = format(selectedDate, "yyyy-MM-dd");
-  const dateLabel = format(selectedDate, "EEEE, d 'de' MMMM", { locale: ptBR });
+  const dateLabel = format(selectedDate, "M月d日（E）", { locale: ja });
   const isToday = dateStr === format(new Date(), "yyyy-MM-dd");
 
   useEffect(() => {
@@ -135,7 +135,6 @@ export default function DiarioPage() {
     if (!content.trim()) return;
     setAnalyzing(true);
 
-    // Salva antes de analisar
     await handleSave();
 
     try {
@@ -190,9 +189,9 @@ export default function DiarioPage() {
 
   return (
     <div>
-      <PageHeader title="Diário" subtitle={isToday ? "Hoje" : dateLabel} />
+      <PageHeader title="日記" subtitle={isToday ? "今日" : dateLabel} />
 
-      {/* Navegação de data */}
+      {/* 日付ナビゲーション */}
       <div className="flex items-center justify-between px-4 py-2">
         <button
           onClick={() => setSelectedDate(subDays(selectedDate, 1))}
@@ -200,8 +199,8 @@ export default function DiarioPage() {
         >
           <ChevronLeft className="w-5 h-5 text-gray-600" />
         </button>
-        <p className="text-sm font-medium text-gray-700 capitalize">
-          {isToday ? "Hoje" : dateLabel}
+        <p className="text-sm font-medium text-gray-700">
+          {isToday ? "今日" : dateLabel}
         </p>
         <button
           onClick={() => setSelectedDate(new Date(Math.min(new Date(dateStr).getTime() + 86400000, new Date().getTime())))}
@@ -213,9 +212,9 @@ export default function DiarioPage() {
       </div>
 
       <div className="px-4 space-y-4">
-        {/* Metas do dia */}
+        {/* 今日の目標 */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <h3 className="font-semibold text-gray-800 mb-3 text-sm">🎯 Metas do dia</h3>
+          <h3 className="font-semibold text-gray-800 mb-3 text-sm">🎯 今日の目標</h3>
           <div className="space-y-2">
             {goals.map((goal, i) => (
               <div key={i} className="flex items-center gap-2">
@@ -248,7 +247,7 @@ export default function DiarioPage() {
               value={newGoal}
               onChange={(e) => setNewGoal(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addGoal()}
-              placeholder="Adicionar meta..."
+              placeholder="目標を追加..."
               className="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
             />
             <button
@@ -260,25 +259,25 @@ export default function DiarioPage() {
           </div>
         </div>
 
-        {/* Entrada do diário */}
+        {/* 日記本文 */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <h3 className="font-semibold text-gray-800 mb-3 text-sm">📝 Como foi seu dia?</h3>
+          <h3 className="font-semibold text-gray-800 mb-3 text-sm">📝 今日はどうでしたか？</h3>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Escreva livremente... o que aconteceu, como você se sentiu, o que aprendeu..."
+            placeholder="自由に書いてください... 何があったか、どう感じたか、何を学んだか..."
             className="w-full text-sm text-gray-700 border-none outline-none min-h-[140px] leading-relaxed placeholder:text-gray-300"
           />
         </div>
 
-        {/* Botões */}
+        {/* ボタン */}
         <div className="flex gap-2">
           <button
             onClick={handleSave}
             disabled={saving}
             className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-sm font-semibold text-gray-600 hover:border-gray-300 disabled:opacity-50"
           >
-            {saved ? "✓ Salvo!" : saving ? "Salvando..." : "Salvar"}
+            {saved ? "✓ 保存済み！" : saving ? "保存中..." : "保存"}
           </button>
           <button
             onClick={handleAnalyze}
@@ -286,21 +285,21 @@ export default function DiarioPage() {
             className="flex-1 py-3 rounded-xl bg-primary-600 text-white text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary-700 disabled:opacity-50"
           >
             <Sparkles className="w-4 h-4" />
-            {analyzing ? "Analisando..." : "Analisar com IA"}
+            {analyzing ? "分析中..." : "AIで分析"}
           </button>
         </div>
 
-        {/* Resultado da análise */}
+        {/* 分析結果 */}
         {analysis && (
           <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-primary-500" />
-              <h3 className="font-semibold text-gray-800 text-sm">Análise do dia</h3>
+              <h3 className="font-semibold text-gray-800 text-sm">今日の分析</h3>
             </div>
 
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Humor</span>
+                <span className="text-sm text-gray-600">気分</span>
                 <span className={`text-sm font-bold px-2 py-0.5 rounded-full border ${moodColor(analysis.mood_score)}`}>
                   {analysis.mood_score}/10
                 </span>
@@ -320,31 +319,31 @@ export default function DiarioPage() {
 
             {analysis.goals_comparison && (
               <div className="bg-gray-50 rounded-xl p-3">
-                <p className="text-xs text-gray-500 font-medium mb-1">Metas vs realizações</p>
+                <p className="text-xs text-gray-500 font-medium mb-1">目標と達成の比較</p>
                 <p className="text-sm text-gray-700">{analysis.goals_comparison}</p>
               </div>
             )}
 
             {analysis.feedback && (
               <div className="bg-primary-50 rounded-xl p-3">
-                <p className="text-xs text-primary-600 font-medium mb-1">✨ Feedback</p>
+                <p className="text-xs text-primary-600 font-medium mb-1">✨ フィードバック</p>
                 <p className="text-sm text-primary-900">{analysis.feedback}</p>
               </div>
             )}
 
             {analysis.patterns && (
               <div className="bg-amber-50 rounded-xl p-3">
-                <p className="text-xs text-amber-600 font-medium mb-1">📊 Padrões identificados</p>
+                <p className="text-xs text-amber-600 font-medium mb-1">📊 パターン分析</p>
                 <p className="text-sm text-amber-900">{analysis.patterns}</p>
               </div>
             )}
           </div>
         )}
 
-        {/* Entradas recentes */}
+        {/* 最近の日記 */}
         {recentEntries.length > 0 && (
           <div>
-            <h3 className="font-semibold text-gray-700 text-sm px-1 mb-2">Últimos dias</h3>
+            <h3 className="font-semibold text-gray-700 text-sm px-1 mb-2">最近の記録</h3>
             <div className="space-y-2">
               {recentEntries.slice(0, 5).map((entry) => {
                 const entryDate = parseISO(entry.date);
@@ -357,12 +356,12 @@ export default function DiarioPage() {
                     }`}
                   >
                     <div className="w-10 text-center">
-                      <p className="text-xs text-gray-400">{format(entryDate, "EEE", { locale: ptBR })}</p>
+                      <p className="text-xs text-gray-400">{format(entryDate, "E", { locale: ja })}</p>
                       <p className="text-base font-bold text-gray-700">{format(entryDate, "d")}</p>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-gray-500 truncate">
-                        {entry.content?.substring(0, 60) ?? "Sem texto"}...
+                        {entry.content?.substring(0, 60) ?? "テキストなし"}...
                       </p>
                     </div>
                     {entry.mood_score && (

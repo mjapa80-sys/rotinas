@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("Analyze error:", err);
     return NextResponse.json(
-      { error: "Falha ao analisar com IA. Tente novamente." },
+      { error: "AI分析に失敗しました。もう一度お試しください。" },
       { status: 500 }
     );
   }

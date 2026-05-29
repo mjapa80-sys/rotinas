@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format, addDays, isToday, isTomorrow } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { ja } from "date-fns/locale";
 import { RefreshCw, MapPin, Clock, AlertCircle, Plus, X } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 
@@ -80,7 +80,7 @@ export default function AgendaPage() {
 
       setGroups(days);
     } catch {
-      setError("Não foi possível sincronizar com o Google Calendar.");
+      setError("Googleカレンダーと同期できませんでした。");
     } finally {
       setLoading(false);
       setSyncing(false);
@@ -110,16 +110,16 @@ export default function AgendaPage() {
       setNewEvent(emptyEvent);
       await loadEvents();
     } catch {
-      setSaveError("Erro ao salvar evento.");
+      setSaveError("イベントの保存に失敗しました。");
     } finally {
       setSaving(false);
     }
   };
 
   const dayLabel = (date: Date) => {
-    if (isToday(date)) return "Hoje";
-    if (isTomorrow(date)) return "Amanhã";
-    return format(date, "EEEE, d/MM", { locale: ptBR });
+    if (isToday(date)) return "今日";
+    if (isTomorrow(date)) return "明日";
+    return format(date, "M月d日（E）", { locale: ja });
   };
 
   const timeLabel = (event: CalendarEvent) => {
@@ -130,14 +130,14 @@ export default function AgendaPage() {
         : "";
       return end ? `${start} – ${end}` : start;
     }
-    return "Dia todo";
+    return "終日";
   };
 
   return (
     <div>
       <PageHeader
-        title="Agenda"
-        subtitle="Próximos 7 dias"
+        title="スケジュール"
+        subtitle="今後7日間"
         action={
           <div className="flex items-center gap-2">
             <button
@@ -145,7 +145,7 @@ export default function AgendaPage() {
               className="flex items-center gap-1.5 text-sm text-white font-medium bg-primary-600 px-3 py-1.5 rounded-xl"
             >
               <Plus className="w-4 h-4" />
-              Novo
+              新規
             </button>
             <button
               onClick={loadEvents}
@@ -153,18 +153,18 @@ export default function AgendaPage() {
               className="flex items-center gap-1.5 text-sm text-primary-600 font-medium bg-primary-50 px-3 py-1.5 rounded-xl"
             >
               <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-              {syncing ? "..." : "Sync"}
+              {syncing ? "..." : "同期"}
             </button>
           </div>
         }
       />
 
-      {/* Modal de novo evento */}
+      {/* 新規イベントモーダル */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-md p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">Novo evento</h2>
+              <h2 className="text-lg font-bold text-gray-900">新規イベント</h2>
               <button onClick={() => setShowForm(false)}>
                 <X className="w-5 h-5 text-gray-400" />
               </button>
@@ -173,7 +173,7 @@ export default function AgendaPage() {
             <div className="space-y-3">
               <input
                 type="text"
-                placeholder="Título *"
+                placeholder="タイトル *"
                 value={newEvent.title}
                 onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
@@ -188,7 +188,7 @@ export default function AgendaPage() {
 
               <div className="flex gap-2">
                 <div className="flex-1">
-                  <label className="text-xs text-gray-400 mb-1 block">Início</label>
+                  <label className="text-xs text-gray-400 mb-1 block">開始</label>
                   <input
                     type="time"
                     value={newEvent.startTime}
@@ -197,7 +197,7 @@ export default function AgendaPage() {
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="text-xs text-gray-400 mb-1 block">Fim</label>
+                  <label className="text-xs text-gray-400 mb-1 block">終了</label>
                   <input
                     type="time"
                     value={newEvent.endTime}
@@ -209,14 +209,14 @@ export default function AgendaPage() {
 
               <input
                 type="text"
-                placeholder="Local (opcional)"
+                placeholder="場所（任意）"
                 value={newEvent.location}
                 onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
 
               <textarea
-                placeholder="Descrição (opcional)"
+                placeholder="説明（任意）"
                 value={newEvent.description}
                 onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
                 rows={2}
@@ -233,7 +233,7 @@ export default function AgendaPage() {
               disabled={saving || !newEvent.title}
               className="w-full bg-primary-600 text-white font-semibold py-3 rounded-2xl disabled:opacity-50"
             >
-              {saving ? "Salvando..." : "Salvar"}
+              {saving ? "保存中..." : "保存"}
             </button>
           </div>
         </div>
@@ -244,10 +244,10 @@ export default function AgendaPage() {
           <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-red-700">Erro ao sincronizar</p>
+              <p className="text-sm font-semibold text-red-700">同期エラー</p>
               <p className="text-sm text-red-600 mt-0.5">{error}</p>
               <p className="text-xs text-red-500 mt-1">
-                Verifique se você permitiu acesso ao Google Calendar ao fazer login.
+                ログイン時にGoogleカレンダーへのアクセスを許可してください。
               </p>
             </div>
           </div>
@@ -272,14 +272,14 @@ export default function AgendaPage() {
               }`}
             >
               <p
-                className={`text-sm font-bold mb-2 capitalize ${
+                className={`text-sm font-bold mb-2 ${
                   isToday(date) ? "text-primary-600" : "text-gray-700"
                 }`}
               >
                 {dayLabel(date)}
               </p>
               {events.length === 0 ? (
-                <p className="text-sm text-gray-300">Nenhum evento</p>
+                <p className="text-sm text-gray-300">予定なし</p>
               ) : (
                 <div className="space-y-3">
                   {events.map((event) => (

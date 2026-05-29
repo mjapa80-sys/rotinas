@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { ja } from "date-fns/locale";
 import {
   Plus,
   Calendar,
@@ -14,6 +14,7 @@ import {
   Bell,
   ChevronRight,
   Zap,
+  LogOut,
 } from "lucide-react";
 
 interface CalendarEvent {
@@ -59,9 +60,9 @@ export default function DashboardPage() {
 
   const greeting = () => {
     const h = today.getHours();
-    if (h < 12) return "Bom dia";
-    if (h < 18) return "Boa tarde";
-    return "Boa noite";
+    if (h < 12) return "おはようございます";
+    if (h < 18) return "こんにちは";
+    return "こんばんは";
   };
 
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] ?? "";
@@ -69,7 +70,6 @@ export default function DashboardPage() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
 
-    // Busca eventos do Google Calendar
     fetch("/api/agenda/sync?days=1")
       .then((r) => r.json())
       .then((data) => {
@@ -78,17 +78,14 @@ export default function DashboardPage() {
       })
       .catch(() => setLoadingEvents(false));
 
-    // Busca próximas consultas/exames (próximas 2)
     fetch("/api/saude?upcoming=2")
       .then((r) => r.json())
       .then((data) => setHealth(data.records ?? []));
 
-    // Planos com lembrete pendente
     fetch("/api/planos?reminder=pending")
       .then((r) => r.json())
       .then((data) => setPlans(data.plans ?? []));
 
-    // Entrada de diário de hoje
     fetch(`/api/diario?date=${todayStr}`)
       .then((r) => r.json())
       .then((data) => setDiary(data.entry ?? null));
@@ -111,23 +108,35 @@ export default function DashboardPage() {
   };
 
   const categoryLabel: Record<string, string> = {
-    viagem: "✈️ Viagem",
-    evento: "🎉 Evento",
-    encontro: "👥 Encontro",
-    outro: "📌 Outro",
+    viagem: "✈️ 旅行",
+    evento: "🎉 イベント",
+    encontro: "👥 集まり",
+    outro: "📌 その他",
   };
 
   return (
     <div className="px-4 pt-6 space-y-5">
-      {/* Header */}
-      <div>
-        <p className="text-gray-500 text-sm">{format(today, "EEEE, d 'de' MMMM", { locale: ptBR })}</p>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {greeting()}{firstName ? `, ${firstName}` : ""}! 👋
-        </h1>
+      {/* ヘッダー */}
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-gray-500 text-sm">{format(today, "M月d日（E）", { locale: ja })}</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {greeting()}{firstName ? `、${firstName}` : ""}！👋
+          </h1>
+        </div>
+        <button
+          onClick={async () => {
+            await supabase.auth.signOut();
+            window.location.href = "/login";
+          }}
+          className="flex items-center gap-1.5 text-xs text-gray-400 mt-1 px-2 py-1.5 rounded-xl hover:bg-gray-100"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          ログアウト
+        </button>
       </div>
 
-      {/* Quick Capture Card */}
+      {/* クイックキャプチャ */}
       <Link
         href="/captura"
         className="flex items-center gap-3 bg-primary-600 text-white rounded-2xl p-4 shadow-lg shadow-primary-200 active:scale-[0.98] transition-transform"
@@ -136,27 +145,27 @@ export default function DashboardPage() {
           <Zap className="w-5 h-5" />
         </div>
         <div className="flex-1">
-          <p className="font-semibold text-sm">Captura Rápida</p>
-          <p className="text-white/70 text-xs">Registre algo do Marista Conecta ou sua cabeça</p>
+          <p className="font-semibold text-sm">クイックメモ</p>
+          <p className="text-white/70 text-xs">気になったことをすぐ記録</p>
         </div>
         <Plus className="w-5 h-5 text-white/80" />
       </Link>
 
-      {/* Diário de hoje */}
+      {/* 今日の日記 */}
       <div className="bg-white rounded-2xl p-4 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-primary-500" />
-            <span className="font-semibold text-sm text-gray-700">Diário de hoje</span>
+            <span className="font-semibold text-sm text-gray-700">今日の日記</span>
           </div>
           <Link href="/diario" className="text-xs text-primary-600 font-medium flex items-center gap-0.5">
-            Abrir <ChevronRight className="w-3 h-3" />
+            開く <ChevronRight className="w-3 h-3" />
           </Link>
         </div>
         {diary ? (
           <div className="flex items-center gap-3">
             <span className={`px-3 py-1 rounded-full text-sm font-semibold ${moodColor(diary.mood_score)}`}>
-              {moodEmoji(diary.mood_score)} Humor {diary.mood_score ?? "—"}/10
+              {moodEmoji(diary.mood_score)} 気分 {diary.mood_score ?? "—"}/10
             </span>
             {diary.mood_keywords && diary.mood_keywords.length > 0 && (
               <div className="flex gap-1 flex-wrap">
@@ -169,19 +178,19 @@ export default function DashboardPage() {
             )}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">Você ainda não registrou hoje. Que tal escrever agora?</p>
+          <p className="text-sm text-gray-400">今日はまだ記録していません。書いてみましょう！</p>
         )}
       </div>
 
-      {/* Eventos de hoje */}
+      {/* 今日の予定 */}
       <div className="bg-white rounded-2xl p-4 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-blue-500" />
-            <span className="font-semibold text-sm text-gray-700">Agenda de hoje</span>
+            <span className="font-semibold text-sm text-gray-700">今日の予定</span>
           </div>
           <Link href="/agenda" className="text-xs text-primary-600 font-medium flex items-center gap-0.5">
-            Ver tudo <ChevronRight className="w-3 h-3" />
+            すべて見る <ChevronRight className="w-3 h-3" />
           </Link>
         </div>
         {loadingEvents ? (
@@ -194,7 +203,7 @@ export default function DashboardPage() {
             {events.slice(0, 3).map((event) => {
               const time = event.start.dateTime
                 ? format(new Date(event.start.dateTime), "HH:mm")
-                : "Dia todo";
+                : "終日";
               return (
                 <div key={event.id} className="flex items-start gap-2">
                   <span className="text-xs text-gray-400 w-10 shrink-0 pt-0.5">{time}</span>
@@ -209,27 +218,27 @@ export default function DashboardPage() {
             })}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">Nenhum evento hoje no Google Calendar.</p>
+          <p className="text-sm text-gray-400">Googleカレンダーに今日の予定はありません。</p>
         )}
       </div>
 
-      {/* Próximas consultas/exames */}
+      {/* 近い健診・診察 */}
       {health.length > 0 && (
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Heart className="w-4 h-4 text-rose-500" />
-              <span className="font-semibold text-sm text-gray-700">Saúde em breve</span>
+              <span className="font-semibold text-sm text-gray-700">もうすぐの健康予定</span>
             </div>
             <Link href="/saude" className="text-xs text-primary-600 font-medium flex items-center gap-0.5">
-              Ver tudo <ChevronRight className="w-3 h-3" />
+              すべて見る <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
           <div className="space-y-2">
             {health.map((rec) => (
               <div key={rec.id} className="flex items-start gap-2">
                 <span className="text-xs text-gray-400 shrink-0 pt-0.5 w-16">
-                  {format(new Date(rec.scheduled_at), "dd/MM")}
+                  {format(new Date(rec.scheduled_at), "M/d")}
                 </span>
                 <div>
                   <p className="text-sm font-medium text-gray-800">{rec.title}</p>
@@ -243,16 +252,16 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Lembretes de planos */}
+      {/* プランのリマインダー */}
       {plans.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Bell className="w-4 h-4 text-amber-600" />
-              <span className="font-semibold text-sm text-amber-800">Lembrete de planos</span>
+              <span className="font-semibold text-sm text-amber-800">プランのリマインダー</span>
             </div>
             <Link href="/planos" className="text-xs text-amber-700 font-medium flex items-center gap-0.5">
-              Ver todos <ChevronRight className="w-3 h-3" />
+              すべて見る <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
           <div className="space-y-2">
@@ -263,7 +272,7 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-amber-600 mt-2">💡 Esses planos estão esperando uma decisão sua!</p>
+          <p className="text-xs text-amber-600 mt-2">💡 これらのプランは決断を待っています！</p>
         </div>
       )}
 

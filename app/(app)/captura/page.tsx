@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { ja } from "date-fns/locale";
 import { Zap, Sparkles, Calendar, Check, Trash2 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 
@@ -17,19 +17,19 @@ interface Capture {
 }
 
 const sources = [
-  { value: "marista", label: "📚 Marista Conecta" },
+  { value: "marista", label: "📚 マリスタ連絡" },
   { value: "whatsapp", label: "💬 WhatsApp" },
-  { value: "pessoal", label: "💭 Pensamento" },
-  { value: "reuniao", label: "📋 Reunião" },
-  { value: "outro", label: "📌 Outro" },
+  { value: "pessoal", label: "💭 メモ" },
+  { value: "reuniao", label: "📋 ミーティング" },
+  { value: "outro", label: "📌 その他" },
 ];
 
 const categories = [
-  { value: "tarefa", label: "✅ Tarefa", color: "bg-blue-100 text-blue-700" },
-  { value: "prova", label: "📝 Prova / Trabalho", color: "bg-red-100 text-red-700" },
-  { value: "evento", label: "🎉 Evento", color: "bg-purple-100 text-purple-700" },
-  { value: "lembrete", label: "🔔 Lembrete", color: "bg-amber-100 text-amber-700" },
-  { value: "outro", label: "📌 Outro", color: "bg-gray-100 text-gray-700" },
+  { value: "tarefa", label: "✅ タスク",   color: "bg-blue-100 text-blue-700" },
+  { value: "prova",  label: "📝 テスト・課題", color: "bg-red-100 text-red-700" },
+  { value: "evento", label: "🎉 イベント", color: "bg-purple-100 text-purple-700" },
+  { value: "lembrete", label: "🔔 リマインダー", color: "bg-amber-100 text-amber-700" },
+  { value: "outro",  label: "📌 その他",   color: "bg-gray-100 text-gray-700" },
 ];
 
 export default function CapturaPage() {
@@ -113,29 +113,29 @@ export default function CapturaPage() {
   return (
     <div>
       <PageHeader
-        title="Captura Rápida"
-        subtitle="Anote agora, organize depois"
+        title="クイックメモ"
+        subtitle="すぐ記録、あとで整理"
       />
 
       <div className="px-4 space-y-4">
-        {/* Área de captura */}
+        {/* メモ入力エリア */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <Zap className="w-4 h-4 text-primary-500" />
-            <span className="text-sm font-semibold text-gray-700">O que você quer registrar?</span>
+            <span className="text-sm font-semibold text-gray-700">何を記録しますか？</span>
           </div>
 
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Cole ou escreva aqui... ex: 'Prova de matemática dia 10/05 - cap 7 e 8' ou 'Evento da escola sexta às 19h'"
+            placeholder="ここに貼り付けるか入力してください... 例：「算数テスト5/10 第7・8章」「金曜19時から学校行事」"
             className="w-full text-sm text-gray-700 border border-gray-200 rounded-xl p-3 min-h-[110px] focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
             autoFocus
           />
 
-          {/* Fonte */}
+          {/* ソース */}
           <div className="mt-3">
-            <p className="text-xs text-gray-500 mb-1.5">De onde vem isso?</p>
+            <p className="text-xs text-gray-500 mb-1.5">どこからですか？</p>
             <div className="flex flex-wrap gap-1.5">
               {sources.map((s) => (
                 <button
@@ -153,19 +153,19 @@ export default function CapturaPage() {
             </div>
           </div>
 
-          {/* Sugestão de categoria via IA */}
+          {/* AIカテゴリ提案 */}
           <button
             onClick={handleSuggest}
             disabled={suggesting || !content.trim()}
             className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed border-primary-300 text-primary-600 text-sm hover:bg-primary-50 disabled:opacity-40"
           >
             <Sparkles className="w-4 h-4" />
-            {suggesting ? "Categorizando..." : "Sugerir categoria com IA"}
+            {suggesting ? "分類中..." : "AIでカテゴリを提案"}
           </button>
 
-          {/* Categoria manual / sugerida */}
+          {/* カテゴリ */}
           <div className="mt-3">
-            <p className="text-xs text-gray-500 mb-1.5">Categoria</p>
+            <p className="text-xs text-gray-500 mb-1.5">カテゴリ</p>
             <div className="flex flex-wrap gap-1.5">
               {categories.map((c) => (
                 <button
@@ -183,11 +183,11 @@ export default function CapturaPage() {
             </div>
           </div>
 
-          {/* Data */}
+          {/* 日付 */}
           <div className="mt-3">
             <label className="text-xs text-gray-500 mb-1 block">
               <Calendar className="w-3 h-3 inline mr-1" />
-              Data relacionada (opcional)
+              関連日（任意）
             </label>
             <input
               type="date"
@@ -202,14 +202,14 @@ export default function CapturaPage() {
             disabled={saving || !content.trim()}
             className="mt-4 w-full py-3 rounded-xl bg-primary-600 text-white font-semibold text-sm disabled:opacity-50"
           >
-            {savedOk ? "✓ Capturado!" : saving ? "Salvando..." : "Capturar"}
+            {savedOk ? "✓ 記録しました！" : saving ? "保存中..." : "記録する"}
           </button>
         </div>
 
-        {/* Capturas pendentes */}
+        {/* 未処理メモ */}
         <div>
           <h3 className="font-semibold text-gray-700 text-sm px-1 mb-2">
-            Pendentes ({captures.length})
+            未処理（{captures.length}）
           </h3>
 
           {loadingCaptures ? (
@@ -223,7 +223,7 @@ export default function CapturaPage() {
             </div>
           ) : captures.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-4">
-              Nenhuma captura pendente 🎉
+              未処理のメモはありません 🎉
             </p>
           ) : (
             <div className="space-y-2">
@@ -243,27 +243,27 @@ export default function CapturaPage() {
                           )}
                           {cap.scheduled_date && (
                             <span className="text-xs text-primary-600 font-medium">
-                              📅 {format(parseISO(cap.scheduled_date), "dd/MM", { locale: ptBR })}
+                              📅 {format(parseISO(cap.scheduled_date), "M/d", { locale: ja })}
                             </span>
                           )}
                         </div>
                         <p className="text-sm text-gray-700">{cap.content}</p>
                         <p className="text-xs text-gray-400 mt-0.5">
-                          {format(parseISO(cap.created_at), "dd/MM HH:mm", { locale: ptBR })}
+                          {format(parseISO(cap.created_at), "M/d HH:mm", { locale: ja })}
                         </p>
                       </div>
                       <div className="flex gap-1 shrink-0">
                         <button
                           onClick={() => handleMarkDone(cap.id)}
                           className="p-1.5 text-green-400 hover:bg-green-50 rounded-lg"
-                          title="Marcar como processado"
+                          title="処理済みにする"
                         >
                           <Check className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(cap.id)}
                           className="p-1.5 text-gray-300 hover:text-red-400 hover:bg-red-50 rounded-lg"
-                          title="Remover"
+                          title="削除"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

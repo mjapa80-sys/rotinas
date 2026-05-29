@@ -21,10 +21,10 @@ export async function analyzeDiaryEntry(
 ): Promise<DiaryAnalysis> {
   const recentContext =
     recentEntries && recentEntries.length > 0
-      ? `\n\nEntradas recentes para análise de padrões:\n${recentEntries
+      ? `\n\n最近の日記（パターン分析用）:\n${recentEntries
           .map(
             (e) =>
-              `${e.date} (humor: ${e.mood_score}/10): ${e.content.substring(0, 150)}...`
+              `${e.date}（気分: ${e.mood_score}/10）: ${e.content.substring(0, 150)}...`
           )
           .join("\n")}`
       : "";
@@ -33,30 +33,30 @@ export async function analyzeDiaryEntry(
     model: "claude-sonnet-4-6",
     max_tokens: 1024,
     system:
-      "Você é um assistente pessoal empático. Analise entradas de diário e retorne APENAS JSON válido, sem texto extra.",
+      "あなたは共感力のある個人アシスタントです。日記の内容を分析し、有効なJSONのみを返してください。余分なテキストは不要です。",
     messages: [
       {
         role: "user",
-        content: `Analise esta entrada de diário e responda em JSON.
+        content: `この日記の内容を分析してJSONで答えてください。
 
-ENTRADA:
+日記の内容:
 ${content}
 
-METAS PLANEJADAS:
-${goalsPlanned.length ? goalsPlanned.map((g) => `- ${g}`).join("\n") : "Nenhuma"}
+計画した目標:
+${goalsPlanned.length ? goalsPlanned.map((g) => `- ${g}`).join("\n") : "なし"}
 
-METAS REALIZADAS:
-${goalsAchieved.length ? goalsAchieved.map((g) => `- ${g}`).join("\n") : "Nenhuma marcada"}
+達成した目標:
+${goalsAchieved.length ? goalsAchieved.map((g) => `- ${g}`).join("\n") : "なし"}
 ${recentContext}
 
-Responda APENAS com este JSON (sem markdown, sem texto extra):
+以下のJSON形式のみで答えてください（マークダウン不要）:
 {
-  "mood_score": <1-10>,
-  "mood_keywords": ["<palavra1>", "<palavra2>", "<palavra3>"],
-  "accomplished": ["<realização1>", "<realização2>"],
-  "goals_comparison": "<análise breve das metas vs realizações>",
-  "feedback": "<mensagem encorajadora e específica em 2-3 frases>",
-  "patterns": "<padrões comportamentais identificados, ou null>"
+  "mood_score": <1〜10の数字>,
+  "mood_keywords": ["<キーワード1>", "<キーワード2>", "<キーワード3>"],
+  "accomplished": ["<達成1>", "<達成2>"],
+  "goals_comparison": "<目標と達成の簡単な比較>",
+  "feedback": "<2〜3文の励ましと具体的なフィードバック>",
+  "patterns": "<行動パターンの分析、またはnull>"
 }`,
       },
     ],
@@ -66,7 +66,7 @@ Responda APENAS com este JSON (sem markdown, sem texto extra):
     message.content[0].type === "text" ? message.content[0].text.trim() : "{}";
 
   const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error("Resposta da IA em formato inválido");
+  if (!jsonMatch) throw new Error("AIの応答が不正な形式です");
 
   return JSON.parse(jsonMatch[0]) as DiaryAnalysis;
 }

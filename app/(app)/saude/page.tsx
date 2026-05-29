@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { format, isFuture, isPast } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Plus, MapPin, User, Trash2, ChevronDown } from "lucide-react";
+import { ja } from "date-fns/locale";
+import { Plus, MapPin, User, Trash2 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 
 interface HealthRecord {
@@ -18,10 +18,10 @@ interface HealthRecord {
 }
 
 const typeLabel: Record<string, { label: string; emoji: string; color: string }> = {
-  medico:     { label: "Médico",      emoji: "🩺", color: "bg-blue-100 text-blue-700" },
-  exame:      { label: "Exame",       emoji: "🔬", color: "bg-purple-100 text-purple-700" },
-  medicamento:{ label: "Medicamento", emoji: "💊", color: "bg-green-100 text-green-700" },
-  outro:      { label: "Outro",       emoji: "📋", color: "bg-gray-100 text-gray-700" },
+  medico:      { label: "診察",     emoji: "🩺", color: "bg-blue-100 text-blue-700" },
+  exame:       { label: "検査",     emoji: "🔬", color: "bg-purple-100 text-purple-700" },
+  medicamento: { label: "薬",       emoji: "💊", color: "bg-green-100 text-green-700" },
+  outro:       { label: "その他",   emoji: "📋", color: "bg-gray-100 text-gray-700" },
 };
 
 export default function SaudePage() {
@@ -82,7 +82,7 @@ export default function SaudePage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Remover este registro?")) return;
+    if (!confirm("この記録を削除しますか？")) return;
     await fetch(`/api/saude?id=${id}`, { method: "DELETE" });
     loadRecords();
   };
@@ -92,8 +92,8 @@ export default function SaudePage() {
   return (
     <div>
       <PageHeader
-        title="Saúde"
-        subtitle="Consultas e exames"
+        title="健康"
+        subtitle="診察・検査"
         action={
           <button
             onClick={() => setShowForm(!showForm)}
@@ -104,25 +104,25 @@ export default function SaudePage() {
         }
       />
 
-      {/* Formulário */}
+      {/* フォーム */}
       {showForm && (
         <div className="mx-4 mb-4 bg-white rounded-2xl p-4 shadow-sm border border-primary-100 space-y-3">
-          <h3 className="font-semibold text-gray-800 text-sm">Novo registro</h3>
+          <h3 className="font-semibold text-gray-800 text-sm">新規記録</h3>
 
           <select
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
             className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-primary-400"
           >
-            <option value="medico">🩺 Médico</option>
-            <option value="exame">🔬 Exame</option>
-            <option value="medicamento">💊 Medicamento</option>
-            <option value="outro">📋 Outro</option>
+            <option value="medico">🩺 診察</option>
+            <option value="exame">🔬 検査</option>
+            <option value="medicamento">💊 薬</option>
+            <option value="outro">📋 その他</option>
           </select>
 
           <input
             type="text"
-            placeholder="Título (ex: Consulta cardiologista) *"
+            placeholder="タイトル（例：内科診察）*"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-primary-400"
@@ -131,14 +131,14 @@ export default function SaudePage() {
           <div className="grid grid-cols-2 gap-2">
             <input
               type="text"
-              placeholder="Nome do médico"
+              placeholder="医師名"
               value={form.doctor_name}
               onChange={(e) => setForm({ ...form, doctor_name: e.target.value })}
               className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-primary-400"
             />
             <input
               type="text"
-              placeholder="Especialidade"
+              placeholder="専門科"
               value={form.specialty}
               onChange={(e) => setForm({ ...form, specialty: e.target.value })}
               className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-primary-400"
@@ -147,7 +147,7 @@ export default function SaudePage() {
 
           <input
             type="text"
-            placeholder="Local / Clínica"
+            placeholder="場所・クリニック"
             value={form.location}
             onChange={(e) => setForm({ ...form, location: e.target.value })}
             className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-primary-400"
@@ -161,7 +161,7 @@ export default function SaudePage() {
           />
 
           <textarea
-            placeholder="Observações..."
+            placeholder="メモ..."
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}
             className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-primary-400 min-h-[70px]"
@@ -172,20 +172,20 @@ export default function SaudePage() {
               onClick={() => setShowForm(false)}
               className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600"
             >
-              Cancelar
+              キャンセル
             </button>
             <button
               onClick={handleSave}
               disabled={saving || !form.title.trim()}
               className="flex-1 py-2.5 rounded-xl bg-primary-600 text-white text-sm font-semibold disabled:opacity-50"
             >
-              {saving ? "Salvando..." : "Salvar"}
+              {saving ? "保存中..." : "保存"}
             </button>
           </div>
         </div>
       )}
 
-      {/* Tabs */}
+      {/* タブ */}
       <div className="flex mx-4 bg-gray-100 rounded-xl p-1 mb-4">
         <button
           onClick={() => setTab("upcoming")}
@@ -193,7 +193,7 @@ export default function SaudePage() {
             tab === "upcoming" ? "bg-white text-primary-700 shadow-sm" : "text-gray-500"
           }`}
         >
-          Próximos ({upcoming.length})
+          今後（{upcoming.length}）
         </button>
         <button
           onClick={() => setTab("past")}
@@ -201,11 +201,11 @@ export default function SaudePage() {
             tab === "past" ? "bg-white text-primary-700 shadow-sm" : "text-gray-500"
           }`}
         >
-          Histórico ({past.length})
+          履歴（{past.length}）
         </button>
       </div>
 
-      {/* Lista */}
+      {/* リスト */}
       <div className="px-4 space-y-3">
         {loading ? (
           <div className="space-y-3">
@@ -221,15 +221,15 @@ export default function SaudePage() {
             <p className="text-4xl mb-3">🏥</p>
             <p className="text-gray-500 text-sm">
               {tab === "upcoming"
-                ? "Nenhuma consulta ou exame agendado"
-                : "Nenhum histórico registrado"}
+                ? "予定された診察・検査はありません"
+                : "履歴がありません"}
             </p>
             {tab === "upcoming" && (
               <button
                 onClick={() => setShowForm(true)}
                 className="mt-4 text-primary-600 text-sm font-medium"
               >
-                + Adicionar agora
+                ＋ 今すぐ追加
               </button>
             )}
           </div>
@@ -266,7 +266,7 @@ export default function SaudePage() {
 
                     {record.scheduled_at && (
                       <p className="text-xs text-primary-600 font-medium mt-1.5">
-                        📅 {format(new Date(record.scheduled_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        📅 {format(new Date(record.scheduled_at), "yyyy年M月d日（E） HH:mm", { locale: ja })}
                       </p>
                     )}
 
