@@ -13,6 +13,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import VoiceInput from "@/components/VoiceInput";
 
 interface Goal {
   text: string;
@@ -261,7 +262,10 @@ export default function DiarioPage() {
 
         {/* 日記本文 */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <h3 className="font-semibold text-gray-800 mb-3 text-sm">📝 今日はどうでしたか？</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-800 text-sm">📝 今日はどうでしたか？</h3>
+            <VoiceInput onTranscript={(t) => setContent((prev) => prev ? prev + " " + t : t)} />
+          </div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}

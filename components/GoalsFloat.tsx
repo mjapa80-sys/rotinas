@@ -83,17 +83,17 @@ export default function GoalsFloat() {
     <>
       {/* フローティングボタン */}
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => setOpen(!open)}
         className="fixed right-4 bottom-24 z-40 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full shadow-lg flex items-center justify-center"
       >
         <Target className="w-5 h-5 text-white" />
       </button>
 
-      {/* モーダル */}
+      {/* パネル */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <div className="relative bg-white rounded-t-3xl w-full max-w-lg max-h-[80vh] flex flex-col">
+        <div className="fixed inset-0 z-50 pointer-events-none">
+          <div className="absolute inset-0 pointer-events-auto" onClick={() => setOpen(false)} />
+          <div className="absolute top-14 right-4 w-80 max-h-[70vh] bg-white rounded-2xl shadow-xl flex flex-col pointer-events-auto overflow-hidden">
             {/* ヘッダー */}
             <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100">
               <div className="flex items-center gap-2">
@@ -232,4 +232,5 @@ export default function GoalsFloat() {
       )}
     </>
   );
+
 }

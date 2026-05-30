@@ -2,11 +2,15 @@
 
 export const dynamic = "force-dynamic";
 
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { CalendarDays } from "lucide-react";
 
-export default function LoginPage() {
+function LoginInner() {
   const supabase = createClient();
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
 
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
@@ -16,7 +20,7 @@ export default function LoginPage() {
           "https://www.googleapis.com/auth/calendar.readonly",
           "https://www.googleapis.com/auth/calendar.events",
         ].join(" "),
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/api/auth/callback`,
         queryParams: {
           access_type: "offline",
           prompt: "consent",
@@ -65,10 +69,24 @@ export default function LoginPage() {
           Googleでログイン
         </button>
 
-        <p className="text-xs text-gray-400 mt-5 text-center leading-relaxed">
+        {error && (
+          <p className="text-xs text-red-500 mt-4 text-center font-medium bg-red-50 rounded-xl p-2">
+            エラー: {error}
+          </p>
+        )}
+
+        <p className="text-xs text-gray-400 mt-4 text-center leading-relaxed">
           ログインするとGoogleカレンダーへのアクセスを許可します。
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginInner />
+    </Suspense>
   );
 }

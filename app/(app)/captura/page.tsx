@@ -5,6 +5,7 @@ import { format, parseISO } from "date-fns";
 import { ja } from "date-fns/locale";
 import { Zap, Sparkles, Calendar, Check, Trash2 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
+import VoiceInput from "@/components/VoiceInput";
 
 interface Capture {
   id: string;
@@ -120,9 +121,12 @@ export default function CapturaPage() {
       <div className="px-4 space-y-4">
         {/* メモ入力エリア */}
         <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <Zap className="w-4 h-4 text-primary-500" />
-            <span className="text-sm font-semibold text-gray-700">何を記録しますか？</span>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-primary-500" />
+              <span className="text-sm font-semibold text-gray-700">何を記録しますか？</span>
+            </div>
+            <VoiceInput onTranscript={(t) => setContent((prev) => prev ? prev + " " + t : t)} />
           </div>
 
           <textarea
