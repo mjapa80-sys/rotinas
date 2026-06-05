@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { format, addDays, isToday, isTomorrow } from "date-fns";
 import { ja } from "date-fns/locale";
-import { RefreshCw, MapPin, Clock, AlertCircle, Plus, X } from "lucide-react";
+import { RefreshCw, MapPin, Clock, AlertCircle, Plus, X, LogIn } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 
 interface CalendarEvent {
@@ -43,6 +43,7 @@ export default function AgendaPage() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reauthNeeded, setReauthNeeded] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [newEvent, setNewEvent] = useState<NewEvent>(emptyEvent);
   const [saving, setSaving] = useState(false);
@@ -55,11 +56,20 @@ export default function AgendaPage() {
       const res = await fetch("/api/agenda/sync?days=7");
       const data = await res.json();
 
+      if (data.reauth_needed) {
+        setReauthNeeded(true);
+        setError(data.error ?? null);
+        setGroups([]);
+        return;
+      }
+
       if (data.error) {
         setError(data.error);
         setGroups([]);
         return;
       }
+
+      setReauthNeeded(false);
 
       const events: CalendarEvent[] = data.events ?? [];
 
@@ -240,15 +250,31 @@ export default function AgendaPage() {
       )}
 
       <div className="px-4 space-y-4 mt-2">
-        {error && (
+        {reauthNeeded && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-800">再ログインが必要です</p>
+              <p className="text-sm text-amber-700 mt-0.5">
+                Googleカレンダーへのアクセス権限が切れました。
+              </p>
+              <button
+                onClick={() => { window.location.href = "/login"; }}
+                className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-white bg-amber-500 px-3 py-1.5 rounded-xl"
+              >
+                <LogIn className="w-4 h-4" />
+                再ログイン
+              </button>
+            </div>
+          </div>
+        )}
+
+        {error && !reauthNeeded && (
           <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-red-700">同期エラー</p>
               <p className="text-sm text-red-600 mt-0.5">{error}</p>
-              <p className="text-xs text-red-500 mt-1">
-                ログイン時にGoogleカレンダーへのアクセスを許可してください。
-              </p>
             </div>
           </div>
         )}

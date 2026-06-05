@@ -76,6 +76,17 @@ CREATE POLICY "health_own"  ON health_records FOR ALL USING (auth.uid() = user_i
 CREATE POLICY "plans_own"   ON future_plans   FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "capture_own" ON quick_captures FOR ALL USING (auth.uid() = user_id);
 
+-- Googleトークン永続保存（モバイルでのカレンダー同期に必要）
+CREATE TABLE IF NOT EXISTS user_tokens (
+  user_id              UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  google_access_token  TEXT,
+  google_refresh_token TEXT,
+  token_expiry         TIMESTAMPTZ,
+  updated_at           TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE user_tokens ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "tokens_own" ON user_tokens FOR ALL USING (auth.uid() = user_id);
+
 -- ================================================
 -- Índices para performance
 -- ================================================

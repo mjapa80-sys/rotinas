@@ -41,6 +41,22 @@ export async function GET(request: Request) {
     console.log("[auth/callback] session present:", !!data?.session);
 
     if (!error && data?.session) {
+      // GoogleトークンをDBに保存（モバイルでのセッション更新後も使えるよう）
+      if (data.session.provider_token || data.session.provider_refresh_token) {
+        try {
+          await supabase.from("user_tokens").upsert({
+            user_id: data.session.user.id,
+            google_access_token: data.session.provider_token ?? null,
+            google_refresh_token: data.session.provider_refresh_token ?? null,
+            token_expiry: new Date(Date.now() + 3_600_000).toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+          console.log("[auth/callback] google tokens saved");
+        } catch (e) {
+          console.error("[auth/callback] token save failed:", e);
+        }
+      }
+
       const response = NextResponse.redirect(`${redirectBase}${next}`);
       pendingCookies.forEach(({ name, value, options }) => {
         response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
