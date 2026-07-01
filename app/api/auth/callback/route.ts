@@ -7,7 +7,11 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/dashboard";
   const forwardedHost = request.headers.get("x-forwarded-host");
-  const redirectBase = forwardedHost ? `https://${forwardedHost}` : origin;
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  // localhost usa http; a Vercel envia x-forwarded-proto=https.
+  // Antes o protocolo estava fixo em https, o que quebrava o login local.
+  const proto = forwardedProto ?? new URL(origin).protocol.replace(":", "");
+  const redirectBase = forwardedHost ? `${proto}://${forwardedHost}` : origin;
 
   console.log("[auth/callback] code present:", !!code);
   console.log("[auth/callback] redirectBase:", redirectBase);
