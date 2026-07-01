@@ -1,0 +1,33 @@
+# Checagem automática (CI): roda a cada push/PR e confere se o app "constrói" sem erros.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build e checagem
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint (qualidade do código)
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Build (construir o app)
+        run: npm run build
